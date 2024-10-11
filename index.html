@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<html lang="zh-CN">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>在线绘画板</title>
+    <title>Yon Draw & AI Guess</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <style>
         #canvas {
@@ -21,38 +21,38 @@
 </head>
 <body>
     <div class="container mt-5">
-        <h1 class="mb-4">在线绘画板</h1>
+        <h1 class="mb-4">Yon Draw & AI Guess</h1>
         <div class="row">
             <div class="col-md-8">
                 <canvas id="canvas" width="800" height="600"></canvas>
             </div>
             <div class="col-md-4">
                 <div class="mb-3">
-                    <label for="toolSelect" class="form-label">选择工具</label>
+                    <label for="toolSelect" class="form-label">Select Tool</label>
                     <select id="toolSelect" class="form-select">
-                        <option value="pencil">铅笔</option>
-                        <option value="line">直线</option>
-                        <option value="circle">圆形</option>
-                        <option value="rectangle">矩形</option>
-                        <option value="fill">填充</option>
-                        <option value="eraser">橡皮擦</option>
+                        <option value="pencil">Pencil</option>
+                        <option value="line">Line</option>
+                        <option value="circle">Circle</option>
+                        <option value="rectangle">Rectangle</option>
+                        <option value="fill">Fill</option>
+                        <option value="eraser">Eraser</option>
                     </select>
                 </div>
                 <div class="mb-3">
-                    <label for="colorPicker" class="form-label">选择颜色</label>
+                    <label for="colorPicker" class="form-label">Select Color</label>
                     <input type="color" id="colorPicker" class="form-control form-control-color">
                 </div>
                 <div class="mb-3">
-                    <label for="eraserSize" class="form-label">橡皮擦大小</label>
+                    <label for="eraserSize" class="form-label">Eraser Size</label>
                     <input type="range" id="eraserSize" class="form-range" min="1" max="50" value="10">
                 </div>
-                <button id="clearBtn" class="btn btn-danger mb-3">清空画板</button>
-                <button id="undoBtn" class="btn btn-secondary mb-3">撤销</button>
+                <button id="clearBtn" class="btn btn-danger mb-3">Clear Canvas</button>
+                <button id="undoBtn" class="btn btn-secondary mb-3">Undo</button>
                 <div id="responseDialog" class="mt-3">
                     <div id="responseContent"></div>
                 </div>
                 <div class="mb-3 mt-3">
-                    <input type="text" id="promptInput" class="form-control" value="我正在画什么?" placeholder="输入提示词">
+                    <input type="text" id="promptInput" class="form-control" value="What am I drawing?" placeholder="Enter prompt">
                 </div>
             </div>
         </div>
@@ -81,7 +81,7 @@
         let history = [];
         let historyIndex = -1;
 
-        // 设置画布背景为白色
+        // Set canvas background to white
         ctx.fillStyle = 'white';
         ctx.fillRect(0, 0, canvas.width, canvas.height);
 
@@ -254,7 +254,7 @@
             formData.append('video', blob, 'drawing.webm');
             formData.append('question', promptInput.value);
 
-            fetch('https://7fb1-115-66-5-192.ngrok-free.app/video_stream', {
+            fetch('http://7ba2-149-86-66-214.ngrok-free.app/video_stream', {
                 method: 'POST',
                 body: formData
             }).then(response => {
@@ -265,7 +265,7 @@
                     function readChunk() {
                         reader.read().then(({ done, value }) => {
                             if (done) {
-                                console.log("分析完成");
+                                console.log("Analysis completed");
                                 return;
                             }
                             const textChunk = decoder.decode(value, { stream: true });
@@ -276,13 +276,13 @@
                                         const result = JSON.parse(line);
                                         updateResponseDialog(result.text);
                                     } catch (e) {
-                                        console.error('解析JSON时出错:', e);
+                                        console.error('Error parsing JSON:', e);
                                     }
                                 }
                             });
                             readChunk();
                         }).catch(error => {
-                            console.error('读取视频流时出错:', error);
+                            console.error('Error reading video stream:', error);
                         });
                     }
 
@@ -292,14 +292,14 @@
 
                     readChunk();
                 } else {
-                    throw new Error('发送视频片段失败');
+                    throw new Error('Failed to send video segment');
                 }
             }).catch(error => {
-                console.error('发送视频片段时出错:', error);
+                console.error('Error sending video segment:', error);
                 if (responseContent.innerHTML !== "" && !responseContent.innerHTML.endsWith("<br><br>")) {
                     responseContent.innerHTML += "<br><br>";
                 }
-                updateResponseDialog('发送视频片段时出错: ' + error.message);
+                updateResponseDialog('Error sending video segment: ' + error.message);
                 
             });
         }
@@ -330,7 +330,7 @@
                 mediaRecorder.start();
             } else if (elapsedTime >= 10000 && chunks.length === 0) {
                 mediaRecorder.stop();
-                startTime = currentTime - 10000;  // 保留前10秒的录制
+                startTime = currentTime - 10000;  // Keep the previous 10 seconds of recording
                 mediaRecorder = new MediaRecorder(videoStream);
                 mediaRecorder.ondataavailable = function(e) {
                     chunks.push(e.data);
